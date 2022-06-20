@@ -1,5 +1,6 @@
 import express from 'express'
 import 'express-async-errors'
+import mongoose from 'mongoose'
 
 import { errorHandler } from './middleware/error-handler'
 import { currentUserRouter } from './routes/current-user'
@@ -15,7 +16,12 @@ app.use(signOutRouter)
 app.use(signUpRouter)
 app.use(errorHandler)
 
-const { PORT = '3000' } = process.env
-app.listen(PORT, () => {
-  console.log(`Auth service is running on port ${PORT}`)
-})
+async function bootstrap() {
+  await mongoose.connect('mongodb://auth-mongo-srv:27017/auth')
+  const { PORT = '3000' } = process.env
+  app.listen(PORT, () => {
+    console.log(`Auth service is running on port ${PORT}`)
+  })
+}
+
+bootstrap()
