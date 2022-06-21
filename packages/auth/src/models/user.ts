@@ -7,22 +7,37 @@ interface IUserAttr {
   password: string
 }
 
-interface IUserDoc extends mongoose.Document {}
+interface IUserDoc extends mongoose.Document {
+  email: string
+  password: string
+}
 
 interface IUserModel extends mongoose.Model<IUserDoc> {
   build(attr: IUserAttr): IUserDoc
 }
 
-const schema = new mongoose.Schema({
-  email: {
-    type: String,
-    required: true
+const schema = new mongoose.Schema(
+  {
+    email: {
+      type: String,
+      required: true
+    },
+    password: {
+      type: String,
+      required: true
+    }
   },
-  password: {
-    type: String,
-    required: true
+  {
+    toJSON: {
+      transform(_doc, ret) {
+        ret.id = ret._id
+        delete ret.password
+        delete ret._id
+      },
+      versionKey: false
+    }
   }
-})
+)
 
 schema.pre('save', async function (done) {
   if (this.isModified('password')) {
