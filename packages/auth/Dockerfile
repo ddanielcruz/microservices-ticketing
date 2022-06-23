@@ -1,11 +1,10 @@
-# TODO: Write production image with separate build stages
 FROM node:16-alpine
 
 WORKDIR /app
 
 COPY package.json .
 
-RUN npm install
+RUN npm install --only=prod
 
 COPY . .
 
