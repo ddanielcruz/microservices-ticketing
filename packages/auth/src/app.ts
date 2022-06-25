@@ -1,8 +1,8 @@
 import express from 'express'
 import 'express-async-errors'
 import cookieSession from 'cookie-session'
+import { errorHandler } from '@dc-tickets/common'
 
-import { errorHandler } from './middleware/error-handler'
 import { currentUserRouter } from './routes/current-user'
 import { signInRouter } from './routes/sign-in'
 import { signOutRouter } from './routes/sign-out'

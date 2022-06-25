@@ -1,6 +1,5 @@
 import { Router } from 'express'
-
-import { currentUser } from '../middleware/current-user'
+import { currentUser } from '@dc-tickets/common'
 
 export const currentUserRouter = Router()
 

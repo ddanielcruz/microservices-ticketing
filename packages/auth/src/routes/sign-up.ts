@@ -1,9 +1,8 @@
 import { Request, Response, Router } from 'express'
 import { body } from 'express-validator'
 import jwt from 'jsonwebtoken'
+import { BadRequestError, validateRequest } from '@dc-tickets/common'
 
-import { BadRequestError } from '../errors/bad-request-error'
-import { validateRequest } from '../middleware/validate-request'
 import { User } from '../models/user'
 
 export const signUpRouter = Router()
