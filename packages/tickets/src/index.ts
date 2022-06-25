@@ -12,7 +12,7 @@ async function bootstrap() {
   await mongoose.connect(process.env.MONGO_URI!)
   const { PORT = '3000' } = process.env
   app.listen(PORT, () => {
-    console.log(`Auth service is running on port ${PORT}`)
+    console.log(`Tickets service is running on port ${PORT}`)
   })
 }
 
