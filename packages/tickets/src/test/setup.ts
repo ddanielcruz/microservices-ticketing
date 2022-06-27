@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken'
 import { MongoMemoryServer } from 'mongodb-memory-server'
 
 declare global {
-  var signIn: () => string[]
+  var signIn: (id?: string) => string[]
 }
 
 let mongo: MongoMemoryServer
@@ -27,8 +27,8 @@ afterAll(async () => {
   await mongoose.connection.close()
 })
 
-global.signIn = () => {
-  const payload = { id: 'any-id', email: 'any@email.com' }
+global.signIn = (id = 'any-id') => {
+  const payload = { id, email: 'any@email.com' }
   const token = jwt.sign(payload, process.env.JWT_KEY!)
   const session = { jwt: token }
   const cookie = Buffer.from(JSON.stringify(session)).toString('base64')

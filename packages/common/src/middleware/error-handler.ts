@@ -12,5 +12,6 @@ export const errorHandler = (
     return response.status(error.statusCode).json({ errors: error.serializeErrors() })
   }
 
+  console.error(error)
   return response.status(500).send({ errors: [{ message: error.message }] })
 }
