@@ -3,6 +3,8 @@ import { body } from 'express-validator'
 import { NotFoundError, NotAuthorizedError, validateRequest, requestAuth } from '@dc-tickets/common'
 
 import { Ticket } from '../models/ticket'
+import { TicketUpdatedPublisher } from '../events/publishers/ticket-updated-publisher'
+import { natsWrapper } from '../nats-wrapper'
 
 export const updateRouter = Router()
 
@@ -28,6 +30,7 @@ updateRouter.put(
 
     ticket.set({ title: request.body.title, price: parseFloat(request.body.price) })
     await ticket.save()
+    await new TicketUpdatedPublisher(natsWrapper.client).publish(ticket.toJSON())
 
     return response.send()
   }

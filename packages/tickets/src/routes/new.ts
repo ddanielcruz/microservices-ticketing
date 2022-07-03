@@ -1,7 +1,10 @@
 import { Request, Response, Router } from 'express'
 import { requestAuth, validateRequest } from '@dc-tickets/common'
 import { body } from 'express-validator'
+
 import { Ticket } from '../models/ticket'
+import { TicketCreatedPublisher } from '../events/publishers/ticket-created-publisher'
+import { natsWrapper } from '../nats-wrapper'
 
 export const newRouter = Router()
 
@@ -20,7 +23,9 @@ newRouter.post(
       price: parseFloat(price),
       userId: request.currentUser!.id
     })
+
     await ticket.save()
+    await new TicketCreatedPublisher(natsWrapper.client).publish(ticket.toJSON())
 
     return response.status(201).json(ticket)
   }
