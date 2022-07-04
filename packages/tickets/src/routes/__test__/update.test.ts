@@ -3,15 +3,9 @@ import mongoose from 'mongoose'
 
 import { app } from '../../app'
 import { Ticket } from '../../models/ticket'
+import { natsWrapper } from '../../nats-wrapper'
 
 const payload = { title: 'any-title', price: 10 }
-
-const createTicket = () => {
-  return request(app)
-    .post('/api/tickets')
-    .set('Cookie', global.signIn())
-    .send({ title: 'any-title', price: 10 })
-}
 
 describe('Update', () => {
   it('returns a 404 if the provided id does not exist', async () => {
@@ -67,5 +61,17 @@ describe('Update', () => {
       .expect(200)
     const ticket = await Ticket.findById(id)
     expect(ticket).toMatchObject({ title: 'other-title', price: 20 })
+  })
+
+  it('publishes an event', async () => {
+    const cookie = global.signIn()
+    const response = await request(app).post('/api/tickets').set('Cookie', cookie).send(payload)
+    const { id } = response.body
+    await request(app)
+      .put(`/api/tickets/${id}`)
+      .set('Cookie', cookie)
+      .send({ title: 'other-title', price: 20 })
+      .expect(200)
+    expect(natsWrapper.client.publish).toHaveBeenCalled()
   })
 })

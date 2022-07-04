@@ -4,7 +4,7 @@ import { app } from './app'
 import { natsWrapper } from './nats-wrapper'
 
 async function bootstrap() {
-  for (const key of ['JWT_KEY', 'MONGO_URI']) {
+  for (const key of ['JWT_KEY', 'MONGO_URI', 'NATS_URL', 'NATS_CLUSTER_ID', 'NATS_CLIENT_ID']) {
     if (!process.env[key]) {
       throw new Error(`${key} must be defined `)
     }

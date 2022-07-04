@@ -3,6 +3,8 @@ import request from 'supertest'
 import { app } from '../../app'
 import { Ticket } from '../../models/ticket'
 
+import { natsWrapper } from '../../nats-wrapper'
+
 describe('New', () => {
   const route = '/api/tickets'
 
@@ -54,5 +56,14 @@ describe('New', () => {
       price: 10,
       userId: 'any-id'
     })
+  })
+
+  it('publishes an event', async () => {
+    await request(app)
+      .post('/api/tickets')
+      .set('Cookie', global.signIn())
+      .send({ title: 'any-title', price: 10 })
+      .expect(201)
+    expect(natsWrapper.client.publish).toHaveBeenCalled()
   })
 })
