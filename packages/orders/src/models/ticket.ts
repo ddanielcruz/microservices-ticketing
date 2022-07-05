@@ -1,15 +1,14 @@
 import mongoose from 'mongoose'
 
+import { Order, OrderStatus } from './order'
+
 interface ITicketAttr {
   title: string
   price: number
-  userId: string
 }
 
-interface ITicketDoc extends mongoose.Document {
-  title: string
-  price: number
-  userId: string
+export interface ITicketDoc extends mongoose.Document, ITicketAttr {
+  isReserved(): Promise<boolean>
 }
 
 interface ITicketModel extends mongoose.Model<ITicketDoc> {
@@ -24,11 +23,8 @@ const schema = new mongoose.Schema(
     },
     price: {
       type: Number,
-      required: true
-    },
-    userId: {
-      type: String,
-      required: true
+      required: true,
+      min: 0
     }
   },
   {
@@ -42,5 +38,13 @@ const schema = new mongoose.Schema(
 )
 
 schema.statics.build = (attr: ITicketAttr) => new Ticket(attr)
+schema.methods.isReserved = async function (): Promise<boolean> {
+  const existingOrder = await Order.findOne({
+    ticket: this._id,
+    status: { $ne: OrderStatus.Cancelled }
+  })
+
+  return !!existingOrder
+}
 
 export const Ticket = mongoose.model<ITicketDoc, ITicketModel>('Ticket', schema)
