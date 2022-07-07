@@ -1,4 +1,5 @@
 import request from 'supertest'
+import { Types } from 'mongoose'
 
 import { app } from '../../app'
 import { Order, OrderStatus } from '../../models/order'
@@ -6,7 +7,11 @@ import { Ticket } from '../../models/ticket'
 import { natsWrapper } from '../../nats-wrapper'
 
 const buildTicket = async () => {
-  const ticket = Ticket.build({ title: `ticket-${Date.now()}`, price: 10 })
+  const ticket = Ticket.build({
+    id: new Types.ObjectId().toHexString(),
+    title: `ticket-${Date.now()}`,
+    price: 10
+  })
   await ticket.save()
 
   return ticket

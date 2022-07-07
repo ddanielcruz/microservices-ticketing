@@ -3,11 +3,14 @@ import mongoose from 'mongoose'
 import { Order, OrderStatus } from './order'
 
 interface ITicketAttr {
+  id: string
   title: string
   price: number
 }
 
-export interface ITicketDoc extends mongoose.Document, ITicketAttr {
+export interface ITicketDoc extends mongoose.Document {
+  title: string
+  price: number
   isReserved(): Promise<boolean>
 }
 
@@ -37,7 +40,7 @@ const schema = new mongoose.Schema(
   }
 )
 
-schema.statics.build = (attr: ITicketAttr) => new Ticket(attr)
+schema.statics.build = ({ id, ...attr }: ITicketAttr) => new Ticket({ ...attr, _id: id })
 schema.methods.isReserved = async function (): Promise<boolean> {
   const existingOrder = await Order.findOne({
     ticket: this._id,

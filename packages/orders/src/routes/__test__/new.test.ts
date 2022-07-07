@@ -6,6 +6,17 @@ import { Order, OrderStatus } from '../../models/order'
 import { Ticket } from '../../models/ticket'
 import { natsWrapper } from '../../nats-wrapper'
 
+const buildTicket = async () => {
+  const ticket = Ticket.build({
+    id: new mongoose.Types.ObjectId().toHexString(),
+    title: `ticket-${Date.now()}`,
+    price: 10
+  })
+  await ticket.save()
+
+  return ticket
+}
+
 describe('New', () => {
   it('returns an error if the ticket does not exist', async () => {
     const ticketId = new mongoose.Types.ObjectId().toHexString()
@@ -19,8 +30,7 @@ describe('New', () => {
   it.each([OrderStatus.Created, OrderStatus.AwaitingPayment, OrderStatus.Complete])(
     'returns an error if the ticket is already reserved: %s',
     async (status: OrderStatus) => {
-      const ticket = Ticket.build({ title: 'any-title', price: 10 })
-      await ticket.save()
+      const ticket = await buildTicket()
 
       const order = Order.build({
         ticket,
@@ -39,8 +49,7 @@ describe('New', () => {
   )
 
   it('reserves a ticket', async () => {
-    const ticket = Ticket.build({ title: 'any-title', price: 10 })
-    await ticket.save()
+    const ticket = await buildTicket()
 
     await request(app)
       .post('/api/orders')
@@ -50,8 +59,7 @@ describe('New', () => {
   })
 
   it('emits an order created event', async () => {
-    const ticket = Ticket.build({ title: 'any-title', price: 10 })
-    await ticket.save()
+    const ticket = await buildTicket()
 
     await request(app)
       .post('/api/orders')

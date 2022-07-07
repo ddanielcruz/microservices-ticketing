@@ -2,6 +2,8 @@ import mongoose from 'mongoose'
 
 import { app } from './app'
 import { natsWrapper } from './nats-wrapper'
+import { TicketCreatedListener } from './events/listeners/ticket-created-listeners'
+import { TicketUpdatedListener } from './events/listeners/ticket-updated-listeners'
 
 async function bootstrap() {
   for (const key of ['JWT_KEY', 'MONGO_URI', 'NATS_URL', 'NATS_CLUSTER_ID', 'NATS_CLIENT_ID']) {
@@ -17,6 +19,8 @@ async function bootstrap() {
     console.log('Disconnecting from NATS client')
     return process.exit()
   })
+  new TicketCreatedListener(natsWrapper.client).listen()
+  new TicketUpdatedListener(natsWrapper.client).listen()
 
   const { PORT = '3000' } = process.env
   app.listen(PORT, () => {
