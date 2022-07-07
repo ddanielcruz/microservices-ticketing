@@ -5,6 +5,8 @@ import mongoose from 'mongoose'
 
 import { Ticket } from '../models/ticket'
 import { Order, OrderStatus } from '../models/order'
+import { natsWrapper } from '../nats-wrapper'
+import { OrderCreatedPublisher } from '../events/publishers/order-created-publisher'
 
 export const newRouter = Router()
 
@@ -49,6 +51,16 @@ newRouter.post(
     await order.save()
 
     // Publish an event saying that an order was created
+    await new OrderCreatedPublisher(natsWrapper.client).publish({
+      id: order.id,
+      userId: order.userId,
+      status: order.status,
+      expiresAt: order.expiresAt.toISOString(),
+      ticket: {
+        id: ticket.id,
+        price: ticket.price
+      }
+    })
 
     return response.status(201).json(order)
   }
