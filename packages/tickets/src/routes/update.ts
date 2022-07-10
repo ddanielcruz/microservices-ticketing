@@ -1,6 +1,12 @@
 import { Router, Request, Response } from 'express'
 import { body } from 'express-validator'
-import { NotFoundError, NotAuthorizedError, validateRequest, requestAuth } from '@dc-tickets/common'
+import {
+  NotFoundError,
+  NotAuthorizedError,
+  validateRequest,
+  requestAuth,
+  BadRequestError
+} from '@dc-tickets/common'
 
 import { Ticket } from '../models/ticket'
 import { TicketUpdatedPublisher } from '../events/publishers/ticket-updated-publisher'
@@ -22,6 +28,10 @@ updateRouter.put(
 
     if (!ticket) {
       throw new NotFoundError()
+    }
+
+    if (ticket.orderId) {
+      throw new BadRequestError('Ticket is reserved.')
     }
 
     if (ticket.userId !== request.currentUser!.id) {

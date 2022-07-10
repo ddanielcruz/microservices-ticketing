@@ -74,4 +74,18 @@ describe('Update', () => {
       .expect(200)
     expect(natsWrapper.client.publish).toHaveBeenCalled()
   })
+
+  it('returns a 400 if the ticket is reserved', async () => {
+    const { body: ticket } = await request(app)
+      .post('/api/tickets')
+      .set('Cookie', global.signIn())
+      .send({ title: 'any-title', price: 20 })
+    const orderId = new mongoose.Types.ObjectId().toHexString()
+    await Ticket.findByIdAndUpdate(ticket.id, { orderId })
+    await request(app)
+      .put(`/api/tickets/${ticket.id}`)
+      .set('Cookie', global.signIn())
+      .send({ title: 'any-title', price: 10 })
+      .expect(400)
+  })
 })

@@ -1,6 +1,8 @@
 import mongoose from 'mongoose'
 
 import { app } from './app'
+import { OrderCancelledListener } from './events/listeners/order-cancelled-listener'
+import { OrderCreatedListener } from './events/listeners/order-created-listener'
 import { natsWrapper } from './nats-wrapper'
 
 async function bootstrap() {
@@ -17,6 +19,9 @@ async function bootstrap() {
     console.log('Disconnecting from NATS client')
     return process.exit()
   })
+
+  new OrderCreatedListener(natsWrapper.client).listen()
+  new OrderCancelledListener(natsWrapper.client).listen()
 
   const { PORT = '3000' } = process.env
   app.listen(PORT, () => {
